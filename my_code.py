@@ -197,7 +197,7 @@ def main():
 
     #------------------------------------------
     #gh auth login --with-token < git_token.txt
-    token = "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"
+    token = "ghp_HzHTErB3sXS6D2Q5XXXXXXXXXXXXXXXX"
     headers = {'Authorization': f'token {token}'}
     response = requests.get('https://api.github.com/user', headers=headers)
     if response.status_code == 200:
