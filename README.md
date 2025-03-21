@@ -6,7 +6,7 @@ The scrip will download all github security vulnerabilities from the Github Advi
 
 How to run:  
 -Execute python mycode.py
--You may encounter git API rate limitation. To fix that try authenticating first. This can be done by populating the Git_USER_ID and GIT_PASSWORD in the code.  
+-You may encounter git API rate limitation. To fix that try authenticating first. This can be done by populating the Git_USER_ID and GIT_PASSWORD in the code. A more secure way would be to read those values using environmenal variables.  
 
 -You can also try creating a git token, add to a file and use the CLI to authenticate from the cli (gh auth login --with-token < git_token.txt).  
 
@@ -17,3 +17,5 @@ https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api?
 https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api?apiVersion=2022-11-28#calculating-points-for-the-secondary-rate-limit
 https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip
 
+Transperancy Note:  
+The initial code was generated with chatGPT, however as expected, few bugs and unintended logic was present. Additional logic (functions) was added to handle API rate limiting and retries, flow control and better user feedback.  
