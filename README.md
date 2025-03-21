@@ -30,3 +30,7 @@ Next screen shot show the number of advisories downloaded and any status code fr
 <img width="1040" alt="Screenshot 2025-03-21 at 5 41 39 PM" src="https://github.com/user-attachments/assets/cbd8de1f-7aa8-42a1-9bd8-30ffc8eff887" />
 
 
+
+  Here is the entire flow:  
+  
+<img width="1362" alt="Screenshot 2025-03-21 at 5 58 18 PM" src="https://github.com/user-attachments/assets/8297aeb7-8d76-4952-8b1a-549871550f77" />
