@@ -19,7 +19,8 @@ https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip
 
 __Transparency Note:__  
 The initial code was generated with chatGPT, however and as expected, few bugs and unintended logic was present. Additional logic (functions) is added to handle API rate limiting and retries, flow control and better user feedback during the execution.  
-==========================================================================================================================================  
+
+================================================================================================================== 
 
 This is the inital code execution. If you have the correct GitHub token the first step of Authentication should succeed. Then we try to fetch any data on API rates. This should help us determine if we have any issues at this point (repeated testing tend to exhaust the calls). The sleep timer is created by calculating the difference between current time and the window reset time (returned from last call). I you answer "y" the program will sleep for the calculated timers:  
 
