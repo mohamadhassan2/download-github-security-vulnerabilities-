@@ -20,9 +20,13 @@ https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip
 __Transparency Note:__  
 The initial code was generated with chatGPT, however and as expected, few bugs and unintended logic was present. Additional logic (functions) is added to handle API rate limiting and retries, flow control and better user feedback during the execution.  
 
-================================================================================================================== 
+====================================================================================================== 
 
 This is the inital code execution. If you have the correct GitHub token the first step of Authentication should succeed. Then we try to fetch any data on API rates. This should help us determine if we have any issues at this point (repeated testing tend to exhaust the calls). The sleep timer is created by calculating the difference between current time and the window reset time (returned from last call). I you answer "y" the program will sleep for the calculated timers:  
 
 <img width="1040" alt="Screenshot 2025-03-21 at 5 41 39 PM" src="https://github.com/user-attachments/assets/7da1ae37-e1a8-4b07-b55e-ab1444efd1c7" />
+
+Next screen shot show the number of advisories downloaded and any status code from the last call. If anything beside status 200 return; you will be prompted with the option to rerun call again. If you answer "NO"; we move to next steps clear
+<img width="1040" alt="Screenshot 2025-03-21 at 5 41 39 PM" src="https://github.com/user-attachments/assets/cbd8de1f-7aa8-42a1-9bd8-30ffc8eff887" />
+
 
