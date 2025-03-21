@@ -8,7 +8,7 @@ How to run:
 -Execute python mycode.py
 -You may encounter git API rate limitation. To fix that try authenticating first. This can be done by populating the Git_USER_ID and GIT_PASSWORD in the code. A more secure way would be to read those values using environmenal variables.  
 
--You can also try creating a git token, add to a file and use the CLI to authenticate from the cli (gh auth login --with-token < git_token.txt).  
+-You can also try creating a git token:[ ](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens), add to a file and use the CLI to authenticate from the cli (gh auth login --with-token < git_token.txt).  
 
 Useful links:  
 https://www.w3schools.com/python/ref_requests_response.asp
