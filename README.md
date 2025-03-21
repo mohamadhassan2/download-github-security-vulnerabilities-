@@ -7,7 +7,7 @@ The scrip will download all GitHUB security vulnerabilities from the Github Advi
 __How to run:__  
 1)Execute python mycode.py  
 
-2)You may encounter git API rate limitation. To fix that try authenticating first. This can be done by populating the Git_USER_ID and GIT_PASSWORD in the code. A more secure way would be to read those values using environmenal variables.  
+2)You may encounter git API rate limitation. To fix this; try authenticating first. This can be done by populating the Git_USER_ID and GIT_PASSWORD in the code. A more secure way would be to read those values using environmenal variables.  
 
 -You can also try creating a git token:(https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens), add to a file and use the CLI to authenticate from the cli (gh auth login --with-token < git_token.txt).  
 
