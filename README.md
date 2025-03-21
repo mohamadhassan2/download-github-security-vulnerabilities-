@@ -9,7 +9,7 @@ How to run:
 -You may encounter git API rate limitation. To fix that try authenticating first. This can be done by populating the Git_USER_ID and GIT_PASSWORD in the code.
 -You can also try creating a git token, add to a file and use the CLI to authenticate from the cli (gh auth login --with-token < git_token.txt).
 
-Useful links:
+Useful links:\n
 https://www.w3schools.com/python/ref_requests_response.asp
 https://www.endorlabs.com/learn/how-to-get-the-most-out-of-github-api-rate-limits
 https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api?apiVersion=2022-11-28
