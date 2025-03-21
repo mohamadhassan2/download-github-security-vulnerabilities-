@@ -208,7 +208,7 @@ def main():
     #------------------------------------------
     #Check API rate limits data  and calculate wait timer base on time difference------------
     print(f"\033[91m>>Fetching GitHub API Rate Limit Information...\033[0m")
-    rate_limit = check_rate_limit("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")
+    rate_limit = check_rate_limit(token)
 
     rate_limit_timestamp_epoc = (rate_limit['reset'])
     datetime_object_utc = datetime.fromtimestamp(rate_limit_timestamp_epoc)
