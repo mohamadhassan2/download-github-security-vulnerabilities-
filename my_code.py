@@ -8,9 +8,9 @@ import datetime
 import time
 from datetime import datetime, UTC, timezone
 
-#Github authentication
-username = "GIT_USER_NAME"
-password = "GIT_PASSWORD"
+#Github basic authentication. More work needed. For now we use tokens in main()
+#username = "GIT_USER_NAME"
+#password = "GIT_PASSWORD"
 
 # GitHub Advisory Database API URL
 GITHUB_ADVISORY_URL = "https://api.github.com/advisories"
@@ -179,8 +179,7 @@ def check_rate_limit(github_token=None):
     else:
         print(f"\033[41;37mError: Failed to retrieve rate limit information. Status code: {response.status_code}\033[0m")
         return None
-
-    #exit()
+#------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 def run_timer(timer_in_sec):
     print (f"\033[41;37mPrimary or Secondary GitHub API Rate Limit Reached. Results maybe incomplete!\033[0m")
