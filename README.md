@@ -18,4 +18,4 @@ https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api?
 https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip
 
 __Transparency Note:__  
-The initial code was generated with chatGPT, however as expected, few bugs and unintended logic was present. Additional logic (functions) was added to handle API rate limiting and retries, flow control and better user feedback.  
+The initial code was generated with chatGPT, however and as expected, few bugs and unintended logic was present. Additional logic (functions) was added to handle API rate limiting and retries, flow control and better user feedback.  
