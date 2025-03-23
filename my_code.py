@@ -7,10 +7,10 @@ import json
 import datetime
 import time
 from datetime import datetime, UTC, timezone
-
-#Github basic authentication. More work needed. For now we use tokens in main()
-#username = "GIT_USER_NAME"
-#password = "GIT_PASSWORD"
+import logging
+import signal
+import sys
+import shutil
 
 # GitHub Advisory Database API URL
 GITHUB_ADVISORY_URL = "https://api.github.com/advisories"
@@ -39,8 +39,12 @@ def fetch_github_advisories():
          #   print (f"Advisory data: {advisotries}")    #debug
             page += 1
         else:
-            print (f"\033[42;30mFetched [{len(advisories)}] advisories\033[0m")
+            print (f"\033[42;30mFetched [Pages:{page}] [Advisories:{len(advisories)}] [Status Code:{response.status_code}]\033[0m")
+            logging.info (f"\033[42;30mFetched [Pages:{page}] [Advisories:{len(advisories)}] [Status Code:{response.status_code}]\033[0m")
+
             print (f"\033[41;37mFailed to fetch advisories! Status code {response.status_code}\033[0m")
+            logging.warning (f"\033[41;37mFailed to fetch advisories! Status code {response.status_code}\033[0m")
+
             print ("This is the call response text:")
             print ("---------------------------------")
             print (response.text)          #debug
@@ -59,11 +63,13 @@ def fetch_kevs():
         kev_data = response.json()
         kev_ids = {entry['cveID'] for entry in kev_data.get('vulnerabilities', [])}
         print(f" \033[42;30mFetched [{len(kev_data)}] kev_data\033[0m", f"  \033[42;30m[{len(kev_ids)}] kev_ids\033[0m\n")
+        logging.info(f" \033[42;30mFetched [{len(kev_data)}] kev_data  [{len(kev_ids)}] kev_ids\033[0m")
         #exit()
         return kev_ids
     else:
 #        print(f"\033[41;37mFailed to fetch KEV data: {response.status_code}\033[0m")
         print(f"\n\033[41;37mFetched [{len(kev_data)}] KEVs. Failed to fetch CISA KEV data! Status code {response.status_code}\033[0m")
+        logging.warning(f"\n\033[41;37mFetched [{len(kev_data)}] KEVs. Failed to fetch CISA KEV data! Status code {response.status_code}\033[0m")
         return set()
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
@@ -108,6 +114,22 @@ def categorize_and_zip(advisories, kev_ids):
 
                     # Save advisory file (could be JSON or another format, simplified here)
                     advisory_filename = f"{severity}/{cve_id}.json"
+                    #--------------------------------------------------------------------------------------
+                    directory_path = f"{severity}"
+                    print (directory_path, advisory_filename)
+                    if os.path.exists(directory_path):
+                        try:
+                            shutil.rmtree(directory_path)
+                            print(f"Directory '{directory_path}' and its contents deleted successfully.")
+                            logging.info(f"Directory '{directory_path}' and its contents deleted successfully.")
+                        except Exception as e:
+                            print(f"Error deleting directory '{directory_path}': {e}")
+                            logging.error (f"Error deleting directory '{directory_path}': {e}")
+                    else:
+                        print(f"Directory '{directory_path}' does not exist.")
+                        logging.warning (f"Directory '{directory_path}' does not exist.")
+                    #--------------------------------------------------------------------------------------
+
                     with open(advisory_filename, 'w') as f:
                         json.dump(advisory, f)  # Store the advisory as JSON
                     zipf.write(advisory_filename)
@@ -129,7 +151,12 @@ def generate_csv(csv_data):
     #Count the lines in CSV file to see if has been populated
     with open(csv_filename, 'r') as fp:
         lines = len (fp.readlines()) - 1
-    print(f"CSV file '{csv_filename}' has been created successfully! If fetching advisories failed then file will be empty [lines count:{lines}] \n")
+    if lines == 0:
+        print(f"CSV file '{csv_filename}' has been created successfully! If fetching advisories failed in above step; then file will be empty! [\033[33;4mlines count:{lines}\033[0m] \n")
+        logging.warning (f"CSV file '{csv_filename}' has been created successfully! If fetching advisories failed in above step; then file will be empty! [\033[33;4mlines count:{lines}\033[0m]")
+    else:
+        print(f"CSV file '{csv_filename}' created successfully! If fetching advisories failed in above step; then file will be empty [lines count:{lines}] \n")
+        logging.info (f"CSV file '{csv_filename}' created successfully! If fetching advisories failed in above step; then file will be empty [lines count:{lines}]")
 
 '''
 #------------------test
@@ -153,7 +180,6 @@ def generate_csv(csv_data):
 #------------------test
 '''
 #------------------------------------------------------------------------------
-
 #------------------------------------------------------------------------------
 def check_rate_limit(github_token=None):
     '''
@@ -169,6 +195,7 @@ def check_rate_limit(github_token=None):
         github_token = os.environ.get("GITHUB_TOKEN")
         if github_token is None:
             print("Error: GitHub token not found. Set GITHUB_TOKEN environment variable or pass it as an argument.")
+            logging.error ("Error: GitHub token not found. Set GITHUB_TOKEN environment variable or pass it as an argument.")
             return None
 
     headers = {'Authorization': f'token {github_token}'}
@@ -177,42 +204,93 @@ def check_rate_limit(github_token=None):
     if response.status_code == 200:
         return response.json()['resources']['core']
     else:
-        print(f"\033[41;37mError: Failed to retrieve rate limit information. Status code: {response.status_code}\033[0m")
+        print(f"\033[41;37mError: Failed to retrieve rate limit information. Status code: [\033[33;4m{response.status_code}]\033[0m")
+        logging.error (f"\033[41;37mError: Failed to retrieve rate limit information. Status code: [\033[33;4m{response.status_code}]\033[0m")
         return None
-#------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 def run_timer(timer_in_sec):
     print (f"\033[41;37mPrimary or Secondary GitHub API Rate Limit Reached. Results maybe incomplete!\033[0m")
-    user_input = input(f"Wait {timer_in_sec} seconds [{timer_in_sec/60:.2f} mins] before re-running the fetch again (y/N)?")
+    logging.info (f"\033[41;37mPrimary or Secondary GitHub API Rate Limit Reached. Results maybe incomplete!\033[0m")
+    user_input = input(f"Fetching appear to fail or incomplete. Want to try again with wait timer {timer_in_sec} seconds [{timer_in_sec/60:.2f} mins] (y/N)?")
     if user_input == "y" :
         print (f"Sleeping {timer_in_sec} seconds ...")
+        logging.info (f"Sleeping {timer_in_sec} seconds ...")
         time.sleep (timer_in_sec)
     return user_input
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+def signal_handler(sig, frame):
+    print('\nYou pressed Ctrl+C!')
+    logging.warning ('You pressed Ctrl+C!')
+    sys.exit(0)
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+def authenticate_git():
+    #------------------------------------------
+    #gh auth login --with-token < git_token.txt
+    try:
+        token = os.environ['GITHUB_TOKEN']
+    except KeyError:
+        while True:
+            token = input(f"env GITHUB_TOKEN not set. Please set it in your shell (bash: export GITHUB_TOKEN=\"xxxxx\") or enter token now: ")
+            if len (token) == 40 :
+                break
+            else:
+                print (f"\n[{token}][{len(token)}] Must be at least 40 characters! Please re-enter:")
+
+    headers = {'Authorization': f'token {token}'}
+    response = requests.get('https://api.github.com/user', headers=headers)
+    if response.status_code == 200:
+        print(f"\033[94m>>GitHub Authentication successful!\033[0m\n")
+        logging.info ("\033[94m>>GitHub Authentication successful!\033[0m")
+       # print(response.json())     #debug
+    else:
+        print(f"\033[41;37mGitHub Authentication failed. Status code: [\033[33;4m{response.status_code}]\033[0m\n")
+        logging.warning ("\033[41;37mGitHub Authentication failed. Status code: [\033[33;4m{response.status_code}]\033[0m\n")
+       # print(response.text)       #debug
+    return  token
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+def setup_logging():
+    #Setup logging
+    logger = logging.getLogger(__name__)
+    this_script_name = os.path.basename(__file__)
+    logfile, extension = os.path.splitext(this_script_name)
+    logfile += ".log"
+    logging.basicConfig(format='%(asctime)s |%(levelname)s| %(message)s', datefmt='%Y-%m-%d %I:%M:%S %p', filename=logfile, encoding='utf-8', level=logging.DEBUG)
+    #logger.debug('This message should go to the log file')
+    logger.info('------------- STARTED NEW CODE EXECUTION  ---------\n')
+    #logger.warning('And this, too')
+    #logger.error('And non-ASCII stuff, too, like Øresund and Malmö')
+    return
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+def setup_signal_handling():
+    signal.signal(signal.SIGINT, signal_handler)
+    #print('Press Ctl+C')
+    #singal.pause()
+    return
 #------------------------------------------------------------------------------
 
 
 # Main function to orchestrate the script
 def main():
 
-    #------------------------------------------
-    #gh auth login --with-token < git_token.txt
-    token = "ghp_HzHTErB3sXS6D2Q5XXXXXXXXXXXXXXXX"
-    headers = {'Authorization': f'token {token}'}
-    response = requests.get('https://api.github.com/user', headers=headers)
-    if response.status_code == 200:
-        print(f"\033[94m>>GitHub Authentication successful!\n")
-       # print(response.json())     #debug
-    else:
-        print(f"\033[41;37mGitHub Authentication failed. Status code: {response.status_code}\033[0m\n")
-       # print(response.text)       #debug
+    x = setup_signal_handling()
+    x = setup_logging()
+    token = authenticate_git()
+
     #------------------------------------------
     #Check API rate limits data  and calculate wait timer base on time difference------------
     print(f"\033[91m>>Fetching GitHub API Rate Limit Information...\033[0m")
+    logging.info (f"\033[91m>>Fetching GitHub API Rate Limit Information...\033[0m")
     rate_limit = check_rate_limit(token)
 
     rate_limit_timestamp_epoc = (rate_limit['reset'])
     datetime_object_utc = datetime.fromtimestamp(rate_limit_timestamp_epoc)
-    print(f"Limit:{rate_limit['limit']}\t ", f"Remaining in window:{rate_limit['remaining']}\t", f"Used:{rate_limit['used']}\t", f"Window will reset at:{datetime_object_utc}")
+    #print(f"Limit:{rate_limit['limit']}\t ", f"Remaining in window:{rate_limit['remaining']}\t", f"Used:{rate_limit['used']}\t", f"Window will reset at:{datetime_object_utc}")
+    print (f"API Rate Limting Data: [Limit:{rate_limit['limit']}]\t[Remaining in window:{rate_limit['remaining']}]\t[Used:{rate_limit['used']}]\t[Window will reset at:{datetime_object_utc}]")
+    logging.info (f"API Rate Limting Data: [Limit:{rate_limit['limit']}][Remaining in window:{rate_limit['remaining']}][Used:{rate_limit['used']}][Window will reset at:{datetime_object_utc}]")
 
     curr_timestamp_epoc = int (time.time() )
     current_datetime = datetime.now()
@@ -222,9 +300,10 @@ def main():
     print("Rate Limit Timestamp:\t", rate_limit_timestamp_epoc, "\t\t", datetime.fromtimestamp(rate_limit_timestamp_epoc))
     #timer = int(( rate_limit_timestamp_epoc - curr_timestamp_epoc)/60 )
     timer_in_sec = (rate_limit_timestamp_epoc - curr_timestamp_epoc)
-    print ("Timer in seconds:\t", timer_in_sec,"[",timer_in_sec/60,"mins]")
+    print ("Timer in seconds:\t", timer_in_sec,"[", round(timer_in_sec/60,2), "mins]")
     #Check API rate limits data  and calculate wait timer base on time difference------------
 
+#    timer_in_sec = 10   #debug
     user_answer = "n"
     remaining = int (rate_limit['remaining'])   #convert set to int
     if (remaining > 0 ) or (curr_timestamp_epoc > rate_limit_timestamp_epoc) :
@@ -233,23 +312,30 @@ def main():
     print ("Starting....", user_answer)
 
     print("\033[92m>>Fetching GitHub Advisories Pages (may take time and subject to API rate limits)...\033[00m" )
+    logging.info ("\033[92m>>Fetching GitHub Advisories Pages (may take time and subject to API rate limits)...\033[00m" )
     advisories, status_code = fetch_github_advisories()
 
-    if (status_code != 200): # and (user_answer == "y"):
+    if (status_code != 200) and (user_answer == "y"):
         user_answer = run_timer(timer_in_sec)
-        print("\033[92m>>Fetching GitHub Advisories Pages (may take time and subject to API rate limits)...\033[00m", end="" )
+        print("\033[92m>>2nd Fetching GitHub Advisories Pages (may take time and subject to API rate limits)...\033[33;4m[Previous Status Code{status_code}]\033[00m", end="" )
+        logging.info("\033[92m>>2nd Fetching GitHub Advisories Pages (may take time and subject to API rate limits)...[\033[33;4mPrevious Status Code{status_code}]\033[00m")
         advisories, status_code = fetch_github_advisories()
+        print("\033[92m>>2nd Fetching GitHub Advisories Pages Result...\033[33;4m[Status Code{status_code}] \033[00m", end="" )
+        logging.info ("\033[92m>>2nd Fetching GitHub Advisories Pages Result...[\033[33;4mStatus Code{status_code}]\033[00m")
 
     print(f"\033[93m>>Fetching CISA Known Exploited Vulnerabilities (KEV)...\033[00m", end="" )
+    logging.info (f"\033[93m>>Fetching CISA Known Exploited Vulnerabilities (KEV)...\033[00m")
     kev_ids = fetch_kevs()
 
     print("\033[94m>>Categorizing advisories by severity and zipping them...\033[00m \n")
+    logging.info ("\033[94m>>Categorizing advisories by severity and zipping them...\033[00m")
     csv_data = categorize_and_zip(advisories, kev_ids)
     #print (csv_data)   #debug
 
     print("\033[95m>>Generating CSV file with vulnerability data..\033[00m \n")
+    logging.info ("\033[95m>>Generating CSV file with vulnerability data..\033[00m")
     generate_csv(csv_data)
 
 if __name__ == "__main__":
     main()
-  
+    
