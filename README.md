@@ -5,7 +5,7 @@ __Problem statement:__
 The scrip will download all GitHUB security vulnerabilities from the Github Advisory Database: https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip. Then zips up the advisories by severity: 4 zips for each category of severity:  low, moderate, high, critical. The code will generate a csv file with a row for every vulnerability and a set of attributes summarizing the key information for each vulnerability. The CSV output contain a field called KEV. If the vulnerability is in the CISA Known Exploited Vulnerabilities Catalog: https://www.cisa.gov/known-exploited-vulnerabilities-catalog-print , the KEV field value will be 1, Otherwise the field will be empty. 
 
 __How to run:__  
-1) Setup your GitHub token in GITHUB_TOKEN env variable.
+1) Setup your GitHub token in GITHUB_TOKEN as env variable.
 2) Execute:   python mycode.py   (python v3.12.3)
 3) Inspect the log file for details.
 4) You may encounter git API rate limitation:  
