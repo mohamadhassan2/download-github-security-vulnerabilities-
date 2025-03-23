@@ -42,7 +42,7 @@ Here is the entire flow:
 
 
 
-      
+List of functions:      
 
 | **Function Name**                       | **Description**                                                                                                   |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
@@ -58,5 +58,3 @@ Here is the entire flow:
 | setup_signal_handling()                 | Function to setup signal traps. We need to know when user hit CTRL-C                                              |
 | main()                                  | Main function to orchestrate the script                                                                           |
 
-
-![image](https://github.com/user-attachments/assets/c6947c25-484e-4c54-a324-b7f8fca0fa4f)
