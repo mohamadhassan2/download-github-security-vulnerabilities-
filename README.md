@@ -8,18 +8,11 @@ __Installion__
 Install request python modue (MacOS):  
       pip3 install request  
       brew upgrade python3  
-
-python --version  
-
-pip3 install request  
-
-brew install python-requests  
-
-python3 -m venv path/to/venv  
-
-source path/to/venv/bin/activate  
-
-python3 -m pip install requests  
+      python --version  
+      pip3 install request  
+      brew install python-requests  python3 -m venv path/to/venv  
+      source path/to/venv/bin/activate  
+      python3 -m pip install requests  
 
 
 __How to run:__  
