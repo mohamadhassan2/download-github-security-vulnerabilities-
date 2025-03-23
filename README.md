@@ -40,4 +40,21 @@ Next screenshot shows the number of advisories downloaded and any status code fr
 
 Here is the entire flow:  
   
-<img width="1362" alt="Screenshot 2025-03-21 at 5 58 18 PM" src="https://github.com/user-attachments/assets/8297aeb7-8d76-4952-8b1a-549871550f77" />
+<img width="1362" alt="Screenshot 2025-03-21 at 5 58 18 PM" src="https://github.com/user-attachments/assets/8297aeb7-8d76-4952-8b1a-549871550f77" />  
+
+
+
+Function Name	Description
+fetch_github_advisories()	Function to fetch vulnerabilities from GitHub Advisory Database
+fetch_kevs()	
+categorize_and_zip(advisories, kev_ids)	Function to fetch the CISA Known Exploited Vulnerabilities (KEV) catalog
+generate_csv(csv_data)	Function to generate the vlun CSV file
+check_rate_limit(github_token=None)	Function to check info for GitHUB rate limitations
+run_timer(timer_in_sec)	Function to determine how long to pause between git api call (if you need to).
+signal_handler(sig, frame)	Function to authenticate to GitHub.
+authenticate_git()	Function for signal handling
+setup_logging()	Function to setup python logging. Support all common types. This should be used to troubleshooting and debugging.
+setup_signal_handling()	Function to setup signal traps. We need to know when user hit CTRL-C
+main()	Main function to orchestrate the script
+![image](https://github.com/user-attachments/assets/a8585c31-5a90-4b2c-a558-1a9caa0fa412)
+
