@@ -6,9 +6,8 @@ The scrip will download all GitHUB security vulnerabilities from the Github Advi
 
 __Installion__
 Install request python modue (MacOS):  
-pip3 install request  
-
-brew upgrade python3  
+      pip3 install request  
+      brew upgrade python3  
 
 python --version  
 
