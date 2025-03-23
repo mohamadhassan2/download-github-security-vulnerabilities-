@@ -44,11 +44,12 @@ Here is the entire flow:
 
 List of functions:      
 
+
 | **Function Name**                       | **Description**                                                                                                   |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | fetch_github_advisories()               | Function to fetch vulnerabilities from GitHub Advisory Database                                                   |
-| fetch_kevs()                            |                                                                                                                   |
-| categorize_and_zip(advisories, kev_ids) | Function to fetch the CISA Known Exploited Vulnerabilities (KEV) catalog                                          |
+| fetch_kevs()                            | Function to fetch the CISA Known Exploited Vulnerabilities (KEV) catalog                                          |
+| categorize_and_zip(advisories, kev_ids) | Function to classify advisories by severity and zip them                                                          |
 | generate_csv(csv_data)                  | Function to generate the vlun CSV file                                                                            |
 | check_rate_limit(github_token=None)     | Function to check info for GitHUB rate limitations                                                                |
 | run_timer(timer_in_sec)                 | Function to determine how long to pause between git api call (if you need to).                                    |
