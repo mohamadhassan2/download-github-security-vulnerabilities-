@@ -24,9 +24,10 @@ The initial code was generated with chatGPT, however and as expected, few bugs a
 
 ====================================================================================================== 
 
-This is the inital code execution. If you have the correct GitHub token the first step of Authentication should succeed. Then we try to fetch any data on API rates. This should help us determine if we have any issues at this point (repeated testing tend to exhaust the calls). The sleep timer is created by calculating the difference between current time and the window reset time (returned from last call). I you answer "y" the program will sleep for the calculated timers:  
+If you have the correct GitHub token for the first step of Authentication should succeed. Then we try to fetch any data on API rates. This should help us determine if we have any issues at this point (repeated testing tend to exhaust the calls). The sleep timer is created by calculating the difference between current time and the window reset time (returned from last call). I you answer "y" the program will sleep for the calculated time:  
 
-<img width="1040" alt="Screenshot 2025-03-21 at 5 41 39 PM" src="https://github.com/user-attachments/assets/7da1ae37-e1a8-4b07-b55e-ab1444efd1c7" />
+<img width="1040" alt="Screenshot 2025-03-21 at 5 41 39 PM" src="https://github.com/user-attachments/assets/7da1ae37-e1a8-4b07-b55e-ab1444efd1c7" border="2px solid red"/>
+
 
 
 Next screenshot shows the number of advisories downloaded and any status code from the last call. If anything beside status 200 return; you will be prompted with the option to rerun call again. If you answer "NO"; we move to next steps clear
@@ -36,6 +37,7 @@ Next screenshot shows the number of advisories downloaded and any status code fr
 
 
 
-  Here is the entire flow:  
+
+Here is the entire flow:  
   
 <img width="1362" alt="Screenshot 2025-03-21 at 5 58 18 PM" src="https://github.com/user-attachments/assets/8297aeb7-8d76-4952-8b1a-549871550f77" />
