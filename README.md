@@ -44,7 +44,7 @@ Here is the entire flow:
 
       
 
-![image](https://github.com/user-attachments/assets/6c202bf0-2360-4509-9a35-6b05aed29fcc)
+
 
 
 ![image](https://github.com/user-attachments/assets/c6947c25-484e-4c54-a324-b7f8fca0fa4f)
