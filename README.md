@@ -6,14 +6,22 @@ The scrip will download all GitHUB security vulnerabilities from the Github Advi
 
 __Installion__
 Install request python modue (MacOS):  
-pip3 install request
-brew upgrade python3
-python --version
-pip3 install request
-brew install python-requests
-python3 -m venv path/to/venv
-source path/to/venv/bin/activate
-python3 -m pip install requests
+pip3 install request  
+
+brew upgrade python3  
+
+python --version  
+
+pip3 install request  
+
+brew install python-requests  
+
+python3 -m venv path/to/venv  
+
+source path/to/venv/bin/activate  
+
+python3 -m pip install requests  
+
 
 __How to run:__  
 1) Setup your GitHub token in GITHUB_TOKEN as env variable.
