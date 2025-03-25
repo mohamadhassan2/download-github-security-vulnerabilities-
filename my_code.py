@@ -14,6 +14,8 @@ import sys
 import shutil
 import argparse
 
+
+
 # GitHub Advisory Database API URL
 GITHUB_ADVISORY_URL = "https://api.github.com/advisories"
 
@@ -29,15 +31,19 @@ def fetch_github_advisories():
 
     while True:
         response = requests.get(f"{GITHUB_ADVISORY_URL}?page={page}")
+        #response = requests.get(f"{GITHUB_ADVISORY_URL}?page={page}?bearer='ghp_lY3WIDWw20bGIXXXXXXXXXXXXXXXXX'")
+
         if response.status_code == 200:
             data = response.json()
             if not data:
                 break
             advisories.extend(data)
             #print ("%2d" %  page)
-            print(page, end=' ')
-         #   print (f"Advisory data: {advisotries}")    #debug
+            print(page, end=' ')    #show page number fetched, this show print after the entire data is retrieved
+            if type(DEBUG) is bool:
+                print (f"\033[36m-DEBUG:ADVISORY DATA P:{page}:>>\033[0m[{advisories}]", "<<")    #debug
             page += 1
+
         else:
             print (f"\033[42;30mFetched [Pages:{page}] [Advisories:{len(advisories)}] [Status Code:{response.status_code}]\033[0m")
             logging.info (f"\033[42;30mFetched [Pages:{page}] [Advisories:{len(advisories)}] [Status Code:{response.status_code}]\033[0m")
@@ -45,14 +51,15 @@ def fetch_github_advisories():
             print (f"\033[41;37mFailed to fetch advisories! Status code {response.status_code}\033[0m")
             logging.warning (f"\033[41;37mFailed to fetch advisories! Status code {response.status_code}\033[0m")
 
-            print ("This is the call response text:")
-            print ("---------------------------------")
-            print (response.text)          #debug
-            print ("---------------------------------")
-            print ("-Try manual git authentication from cli (gh auth login --with-token < git_token.txt)")
-            print ("-See: https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api?apiVersion=2022-11-28")
-            print ("\n")
+            print ("\nThis is the request.get() returned text:")
+            print ("------------------------------------------")
+            print (f"=>[\033[91m",{response.text},"\033[0m]<=" )          #debug
+            print ("------------------------------------------\n")
+            print ("👉 Try manual git authentication from cli before running the script (gh auth login --with-token < git_token.txt)")
+            print ("👉 See: https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api?apiVersion=2022-11-28\n")
             break
+        #print("\n")
+
     return advisories,response.status_code
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
@@ -153,11 +160,15 @@ def generate_csv(csv_data, output_file_name):
     fieldnames = ['CVE ID', 'Severity', 'Description', 'Vulnerable Package', 'Published At', 'Updated At', 'KEV']
     csv_filename = output_file_name
 
+    row_no = 0
     with open(csv_filename, mode='w', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
         for row in csv_data:
             writer.writerow(row)
+            row_no = row_no + 1
+            if DEBUG == "True":
+                print (f"\033[36m-DEBUG CSV DATA R:{row_no}>>\033[0m <<" ,row)
 
     lines = count_lines(csv_filename)
 
@@ -289,7 +300,6 @@ def setup_logging():
     logfile, extension = os.path.splitext(this_script_name)
     logfile += ".log"
     logging.basicConfig(format='%(asctime)s |%(levelname)s| %(message)s', datefmt='%Y-%m-%d %I:%M:%S %p', filename=logfile, encoding='utf-8', level=logging.DEBUG)
-    #logger.debug('This message should go to the log file')
     logger.info('-----------------  STARTED  ---------\n')
     #logger.warning('And this, too')
     #logger.error('And non-ASCII stuff, too, like Øresund and Malmö')
@@ -309,18 +319,24 @@ def setup_signal_handling():
 
 # Main function to orchestrate the script
 def main():
+    global DEBUG
 
     this_script_name = os.path.basename(__file__)
     parser = argparse.ArgumentParser(prog=this_script_name, description='For details on this script see: https://github.com/mohamadhassan2/download-github-security-vulnerabilities-/blob/main/README.md ')
-
     parser.add_argument("-o", "--output_file", type=str, default='vulnerabilites', help="The output file name to save the results. [default: csv]", required=False )
     parser.add_argument('-t', '--type', type=str, default='csv', help="The output file type to save the results. Can be [json] or [csv:default]", required=False )      #option that takes a value
     parser.add_argument('-d', '--debug', default='False', action='store_true', help="Show extra debug information. [default: false]", required=False )   #on/off flag
     args = parser.parse_args()
-    DEBUG = args.debug          #Used as global variable
+    DEBUG = args.debug
     output_file_name = (args.output_file + "." + args.type)
-    print(f"[Output_file: {output_file_name}]   [Type: {args.type}]   [Debug: {args.debug}]")
+    print(f"[Output_file:{output_file_name}]   [Type:{args.type}]   [Debug:{args.debug}]")
     print ("\n")
+
+    #if type(DEBUG) is bool:
+    #    print ("value is true")
+    #else:
+    #    print ("Value is false")
+
 
     x = setup_signal_handling()
     x = setup_logging()
@@ -381,8 +397,7 @@ def main():
     print("\033[95m>>Generating CSV file with vulnerability data..\033[00m \n")
     logging.info ("\033[95m>>Generating CSV file with vulnerability data..\033[00m")
     lines = generate_csv(csv_data, output_file_name)
-    if DEBUG:
-        print ("csv_data:" , csv_data)
+    if DEBUG == "True": print (f"\033[36m {DEBUG}csv_data:>>\033[0m]" , csv_data, "<<")
 
     lines = count_lines(output_file_name)
     print (f"------ FINISHED ----- Results: [Out FileName:{output_file_name} Len:{lines}] [CISA kev_ids:{len(kev_ids)}] [GitHub Advisories:{len(advisories)}]  ------\n ")
@@ -390,3 +405,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
