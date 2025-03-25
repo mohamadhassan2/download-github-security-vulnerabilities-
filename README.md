@@ -22,6 +22,18 @@ __How to run:__
 4) You may encounter git API rate limitation:  
       Try creating a git token:(https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens). Add your token to a file (git_token.txt); then use the CLI to authenticate. Example: gh auth login --with-token < git_token.txt  
       
+__CLI Switches__
+
+bash# python mycode.py  -h  
+usage: mycode.py [-h] [-o OUTPUT_FILE] [-t TYPE] [-d]  
+
+For details on this script see: https://github.com/mohamadhassan2/download-github-security-vulnerabilities-/blob/main/README.md
+
+options:  
+  -h, --help            show this help message and exit  
+  -o, --output_file OUTPUT_FILE. The output file name to save the results. [default: csv]  
+  -t, --type TYPE       The output file type to save the results. Can be [json] or [csv:default]  
+  -d, --debug           Show extra debug information. [default: false]  
 
 __Useful links:__  
 https://www.w3schools.com/python/ref_requests_response.asp
