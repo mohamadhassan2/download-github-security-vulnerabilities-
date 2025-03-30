@@ -13,6 +13,7 @@ import signal
 import sys
 import shutil
 import argparse
+import subprocess       #to execute cli commands
 
 import warnings
 warnings.filterwarnings("ignore", message="Duplicate name*", module="zipfile")  #suppress warning when re-creating existing dir/filename
@@ -49,7 +50,9 @@ def fetch_kevs():
 #end of fetch_kevs():
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
-def progressBar(iterable, page, status , prefix = '', suffix = '', decimals = 1, length = 100, fill = '🟩', printEnd = "\r"):
+def progressBar(iterable, page, status , prefix = '', suffix = '', decimals = 1, length = 100, fill = '#', printEnd = "\r"):
+    #print (iterable, "  ", len(iterable))
+    #exit()
     """
     https://stackoverflow.com/questions/3173320/text-progress-bar-in-terminal-with-block-characters
     Call in a loop to create terminal progress bar
@@ -93,7 +96,7 @@ def fetch_github_advisories():
     while True:         #loop by page. Break if data=empty or status !=200
         page_size = 50
         response = requests.get(f"{GITHUB_ADVISORY_URL}?page={page}?page_size={page_size}")       #method 1
-        #response = requests.get(f"{GITHUB_ADVISORY_URL}?page={page}?bearer='ghp_lY3WIDWw20XXXXXXXXXXXXXXXXX'")    #method 2
+        #response = requests.get(f"{GITHUB_ADVISORY_URL}?page={page}?bearer='ghp_lY3WIDWXXXXXXXXXXXX'")    #method 2
 
         if response.status_code == 200:
             data = response.json()          #get elements in a page
@@ -125,36 +128,38 @@ def fetch_github_advisories():
                         case 4:
                             print (advisories, f" \033[35m[Page:{page} Advisories Len:{len(advisories)} Status:{response.status_code} CVE:{cveID}] \033[0m")
                         case 5:
-                            item = advisories              # A List of Items
+                            items = record              # A List of Items
                             status = response.status_code
                             #print (items)
                             #exit()
                             # A Nicer, Single-Call Usage
-                            for item in progressBar(item, page, status, prefix = 'Retrieving', suffix = 'Complete', length = 10):
+                            for item in progressBar(items, page, status, prefix = 'Retrieving', suffix = 'Complete', length = 10):
                                 # Do stuff...
                                 time.sleep(0.0001)
 
             #print (f"👍 \tResults: [Pages:{page}] [Advisories:{len(advisories)}] [Status Code:{response.status_code}]\033[0m")
             #logging.info (f"👍 Results: Pges:{page}] [Advisories:{len(advisories)}] [Status Code:{response.status_code}]\033[0m")
         else:
-            if page == 0:
-                print (f"⚠️ \033[35mStatus code:{response.status_code} Pages:{page}\033[91m [It appears the initial call failed quickly. An indication of reaching API rate limit!]\033[0m")
-                logging.warning (f"⚠️ \033[35mStatus code:{response.status_code} Pages:{page}\033[0m [It appears the intial call failed quickly. An indication of reaching API rate limit!]")
-            else:
-                print (f"⚠️ \033[35mStatus code:{response.status_code} Pages:{page}\033[0m [if happens after fetching some pages it indicates reaching rate limit or end of data]")
-                logging.warning (f"⚠️ \033[35mStatus code:{response.status_code} Pages:{page}\033[0m [if happens after fetching some pages it indicates reaching rate limit or end of data]")
+
 
             print ("\n🚥 This is the request.get() returned text:")
-            print ("------------------------------------------")
+            print ("------------------------------------------------------------")
             print (f"=>[\033[91m",{response.text},"\033[0m]<=" )          #debug
-            print ("------------------------------------------\n")
+            print ("------------------------------------------------------------")
             print (f"👉 Try git authentication from cli then re-run the scipt (gh auth login --with-token < {GITHUB_TOKEN_FILE})")
             print ("👉 See: https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api?apiVersion=2022-11-28\n")
             break
         #print("\n")
     #end loop
-    print (f"Results: Fetched [Pages:{page}] [Advisories:{len(advisories)}] [Status Code:{response.status_code}]\033[0m")
-    logging.info (f"Results: Fetched [Pages:{page}] [Advisories:{len(advisories)}] [Status Code:{response.status_code}]\033[0m")
+    if len(advisories) == 0:
+        print (f"👎 \033[35m[Pages:{page}] [Advisories:{len(advisories)}] [Status Code:{response.status_code}] ->:The initial call failed too quickly. An indication of reaching API rate limit! Recommend using pause timer.\033[0m")
+        logging.warning (f"👎 \033[35m[Pages:{page}] [Advisories:{len(advisories)}] [Status Code:{response.status_code}] ->:The intial call failed too quickly. An indication of reaching API rate limit!]\033[0m]")
+    else:
+        print (f"🤷‍♀️ \033[35m[Pages:{page}] [Advisories:{len(advisories)}] [Status Code:{response.status_code}] ->:Some pages fetched, but wrong status code. An indication of reaching rate limit or end of data.\033[0m]")
+        logging.warning (f"🤷‍♀️ \033[35m[Pages:{page}] [Advisories:{len(advisories)}] [Status Code:{response.status_code}] ->:Some pages fetched, but wrong status code. An indication of reaching rate limit or end-of-data.\033[0m]")
+
+    #print (f"Results: Fetched [Pages:{page}] [Advisories:{len(advisories)}] [Status Code:{response.status_code}]\033[0m")
+    #logging.info (f"Results: Fetched [Pages:{page}] [Advisories:{len(advisories)}] [Status Code:{response.status_code}]\033[0m")
     return advisories,response.status_code
 
 #end of fetch_github_advisories():
@@ -277,8 +282,8 @@ def generate_csv(csv_data, output_file_name):
         print(f"⚠️ CSV file '{csv_filename}' has been created, but the file appears to be empty! [\033[33;4mlines count:{lines}\033[0m] \n")
         logging.warning (f"⚠️ CSV file '{csv_filename}' has been created, but the file appears to be empty! [\033[33;4mlines count:{lines}\033[0m]")
     else:
-        print(f"    🟢 CSV file '{csv_filename}' created successfully! [lines count:{lines}] \n")
-        logging.info (f"🟢 CSV file '{csv_filename}' created successfully! [lines count:{lines}]")
+        print(f"    🟢 CSV file '{csv_filename}' created successfully...👍 \033[42;30m[lines count:{lines}]\033[0m\n")
+        logging.info (f"🟢 CSV file '{csv_filename}' created successfully...👍 \033[42;30m[lines count:{lines}]\033[0m\n")
 
     match DEBUG:
         case 1:
@@ -328,8 +333,8 @@ def authenticate_git():
             with open(token_filename, 'r') as file:
                 first_line = file.readline()
                 os.environ['GITHUB_TOKEN'] = first_line
-                print("GitHub token file detected. Setting up the env var...")
-                logging.info("GitHub token file detected. Setting up the env var...")
+                print("GitHub token file detected. Setting up the environmental variable $GITHUB_TOKEN...")
+                logging.info("GitHub token file detected. Setting up the environmental variable $GITHUB_TOKEN...")
         except Exception as e:
             print(f"An error occurred: {e}")
     else:
@@ -349,7 +354,19 @@ def authenticate_git():
             else:
                 print (f"\n[{token}][{len(token)}] Must be at least 40 characters! Please re-enter:")
 
+    #Some time cli authentication works better to reset api rate limits, so we are trying both methods
+    #---authentication method 1 -------
+    result = subprocess.run(['echo', '{token}', '|', 'gh', 'auth', 'login', '--with-token'], capture_output=True, text=True, shell=True)
+    #result = subprocess.run(['ls', '-l'], capture_output=True, text=True)
+    # Check if the command was successful
+    if result.returncode == 0:
+        print("CLI GitHub authentication. Command executed successfully:")
+        print(result.stdout)
+    else:
+        print(f"CLI GitHub authentication. Command failed with error code {result.returncode}:")
+        print(result.stderr)
 
+    #---authentication method 2 -------
     headers = {'Authorization': f'token {token}'}
     response = requests.get('https://api.github.com/user', headers=headers)
     if response.status_code == 200:
@@ -360,6 +377,8 @@ def authenticate_git():
         print(f"⛔️ \033[41;37mGitHub Authentication failed. Status code: [\033[33;4m{response.status_code}]\033[0m\n")
         logging.warning ("\033[41;37mGitHub Authentication failed. Status code: [\033[33;4m{response.status_code}]\033[0m\n")
        # print(response.text)       #debug
+
+
     return  token
 #end of authenticate_git():
 #------------------------------------------------------------------------------
@@ -404,8 +423,6 @@ def countdown(t):
 #------------------------------------------------------------------------------
 #Function to determine how long to pause between git api call (if you need to).
 def ask_to_run_timer(timer_in_sec):
-    print (f"\n🛑 \033[41;37mBased on retrieved GitHub-API-limit data, you may have reached the Primary or Secondary limit.Fitching advisories in next step may fail or incomplete!\033[0m\n")
-    logging.info (f"🛑 \033[41;37mBased on retrieved GitHub-API-limit data, you may have reached the Primary or Secondary limit.Fitching advisories in next step may fail or incomplete!\033[0m")
 
     user_input = input(f"Want to pause (calcuated) for \033[36m{timer_in_sec/60:.2f} mins \033[0m[{timer_in_sec} sec] before trying again (y/N)?")
     if user_input == "y" :
@@ -432,8 +449,8 @@ def ask_to_run_timer(timer_in_sec):
 #        dict: A dictionary containing rate limit information, or None if an error occurs.
 #
 def check_rate_limit(github_token=None):
-    print(f"➡️ \033[91m>>Getting GitHub API Rate Limit Information...\033[0m")
-    logging.info (f"➡️ \033[91m>>Getting GitHub API Rate Limit Information...\033[0m")
+    print(f"➡️ \033[94m>>Getting GitHub API Rate Limit Information...\033[0m")
+    logging.info (f"➡️ \033[94m>>Getting GitHub API Rate Limit Information...\033[0m")
 
     if github_token is None:
         github_token = os.environ.get("GITHUB_TOKEN")
@@ -505,7 +522,7 @@ def main():
     args = parser.parse_args()
     DEBUG = args.debug
     output_file_name = (args.output_file + "." + args.type)
-    print(f"[Output_file:{output_file_name}]   [Type:{args.type}]   [Debug Level:{DEBUG}]")   #debug
+    #print(f"[Output_file:{output_file_name}]   [Type:{args.type}]   [Debug Level:{DEBUG}]")   #debug
 
     print ("\n")
     #----------------get args from user------------------------
@@ -523,7 +540,14 @@ def main():
 
     advisories, last_status_code = fetch_github_advisories()
 
+    if (last_status_code != 200) and (len(advisories) > 0 ):
+        print (f"\n🟡 Retrieved some advisories pages, but the return status code was not 200. Data may be incomplete!\033[0m\n")
+
+
     if (last_status_code != 200):
+        print (f"\nℹ️  Based on retrieved GitHub-API-Rate-limits, you may have reached the Primary or Secondary limit!\033[0m\n")
+        logging.info (f"ℹ️  Based on retrieved GitHub-API-Rate-limits, you may have reached the Primary or Secondary limit!\033[0m")
+
         answer = ask_to_run_timer(pause_in_sec)
         if answer == 'y':
             print("🟡 \033[92m>>Fetching GitHub Advisories Pages Again!!!!! " )
@@ -536,13 +560,14 @@ def main():
 
     lines = generate_csv(csv_data, output_file_name)
 
-    #lines = count_lines(output_file_name)
-    print(f"🏁 \033[0mFinal Results: [Out file:\033[34m{output_file_name}\033[0m (Len:\033[35m{lines}\033[0m)]  [CISA kev_ids:\033[36m{len(kev_ids)}\033[0m]    [GitHub Advisories:\033[33m{len(advisories)}\033[0m]\n")
-    logging.info(f"🏁 \033[0mFinal Results: [Out file:\033[34m{output_file_name}\033[0m (Len:\033[35m{lines}\033[0m)]  [CISA kev_ids:\033[36m{len(kev_ids)}\033[0m]    [GitHub Advisories:\033[33m{len(advisories)}\033[0m]\n")
-
+     #current_datetime.strftime("%Y-%m-%d %H:%M:%S")
     end_datetime = datetime.now()
     durration = end_datetime - start_datetime
-    print (f"\t\t----------------- END @ {end_datetime}----------------[Durration:{durration}]\n")
+    print (f"\t\t----------------- END @ {end_datetime}----------------[Durration {durration}]--------\n")
+
+    #lines = count_lines(output_file_name)
+    print(f"🏁 \033[0mFinal Results: [Out file:\033[34m{output_file_name}\033[0m (Len:\033[35m{lines}\033[0m)]  [CISA kev_ids:\033[36m{len(kev_ids)}\033[0m]    [GitHub Advisories:\033[33m{len(advisories)}\033[0m]\n")
+    logging.info(f"🏁 \033[0mFinal Results: [OutFile:\033[33m{output_file_name}\033[0m (Len:\033[35m{lines}\033[0m)]  [CISA kev_ids:\033[36m{len(kev_ids)}\033[0m]    [GitHub Advisories:\033[33m{len(advisories)}\033[0m]\n")
 
 if __name__ == "__main__":
     main()
