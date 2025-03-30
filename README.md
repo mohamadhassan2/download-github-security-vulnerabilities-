@@ -1,4 +1,4 @@
-# download-github-security-vulnerabilities-
+# download-github-security-vulnerabilities
 This python script will download all GitHub security vulnerabilities from the Github Advisory Database. 
 
 __Problem statement:__  
