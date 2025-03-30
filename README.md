@@ -75,10 +75,13 @@ List of functions:
 | categorize_and_zip(advisories, kev_ids) | Function to classify advisories by severity and zip them                                                          |
 | generate_csv(csv_data)                  | Function to generate the vlun CSV file                                                                            |
 | check_rate_limit(github_token=None)     | Function to check info for GitHUB rate limitations                                                                |
-| run_timer(timer_in_sec)                 | Function to determine how long to pause between git api call (if you need to).                                    |
+| ask_to_run_timer(timer_in_sec)          | Function to determine how long to pause between git api call (if you need to).                                    |
 | signal_handler(sig, frame)              | Function to authenticate to GitHub.                                                                               |
 | authenticate_git()                      | Function for signal handling                                                                                      |
 | setup_logging()                         | Function to setup python logging. Support all common types. This should be used to troubleshooting and debugging. |
-| setup_signal_handling()                 | Function to setup signal traps. We need to know when user hit CTRL-C                                              |
+| progressBar()                           | Function to show progress bars with percentage                                                                    |
+| printProgressBar()                      | Function to embedded in progressBar()                                                                             |
+| count_lines()                           | Function to count number of lines in CSV file.                                                                    |
+| calculate_pause_timer()                 | Function to calculate the ideal pause timer if featch GitHub data returned 403.                                   |
 | main()                                  | Main function to orchestrate the script                                                                           |
 
